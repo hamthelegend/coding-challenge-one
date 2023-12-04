@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "CodingChallengeOne"
 include(":app")
- 
+include(":extensions")

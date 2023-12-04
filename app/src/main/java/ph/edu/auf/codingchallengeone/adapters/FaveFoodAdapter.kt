@@ -18,10 +18,14 @@ private const val DRINKS = 2
 private const val LUNCH = 3
 private const val DINNER = 4
 
-class FaveFoodAdapter(private var context: Context, private var faveFoodList: ArrayList<FoodRealm>, private var faveFoodAdapterCallback: FaveFoodAdapterCallback) : RecyclerView.Adapter<FaveFoodAdapter.FaveFoodHolder>() {
+class FaveFoodAdapter(
+    private var context: Context,
+    private var faveFoodList: ArrayList<FaveFoodRealm>,
+    private var faveFoodAdapterCallback: FaveFoodAdapterCallback,
+) : RecyclerView.Adapter<FaveFoodAdapter.FaveFoodHolder>() {
 
     interface FaveFoodAdapterCallback{
-        fun removeFromFave(id: ObjectId, foodId : ObjectId)
+        fun removeFromFave(id: ObjectId)
     }
 
     inner class FaveFoodHolder(private val binding: ContentRvFoodBinding): RecyclerView.ViewHolder(binding.root){
@@ -31,8 +35,9 @@ class FaveFoodAdapter(private var context: Context, private var faveFoodList: Ar
                 txtFoodName.text = itemData.food?.foodName
                 imgFoodType.setImageDrawable(getImageDrawable(itemData.food?.foodType!!.type))
                 cbFave.isChecked = true
-                cbFave.setOnCheckedChangeListener { _, b ->
-                    if(!b){
+                cbFave.setOnCheckedChangeListener { _, checked ->
+                    if(!checked){
+                        faveFoodAdapterCallback.removeFromFave(itemData.food!!.id)
                     }
                 }
             }
@@ -65,7 +70,7 @@ class FaveFoodAdapter(private var context: Context, private var faveFoodList: Ar
     }
 
     override fun getItemCount(): Int {
-        return faveFoodList.size - 5
+        return faveFoodList.size
     }
 
     override fun onBindViewHolder(holder: FaveFoodHolder, position: Int) {

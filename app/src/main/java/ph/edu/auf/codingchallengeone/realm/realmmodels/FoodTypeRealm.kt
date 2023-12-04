@@ -4,8 +4,7 @@ import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
 import org.mongodb.kbson.ObjectId
 
-class FoodTypeRealm {
-
+class FoodTypeRealm: RealmObject {
     @PrimaryKey
     var id: ObjectId = ObjectId()
     var typeName: String = ""

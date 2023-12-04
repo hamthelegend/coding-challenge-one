@@ -3,6 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/foodFragment">
+    app:startDestination="@id/foodFragment2">
 
+    <fragment
+        android:id="@+id/foodFragment2"
+        android:name="ph.edu.auf.codingchallengeone.views.fragments.FoodFragment"
+        android:label="FoodFragment" />
+    <fragment
+        android:id="@+id/faveFragment"
+        android:name="ph.edu.auf.codingchallengeone.views.fragments.FaveFragment"
+        android:label="FaveFragment" />
 </navigation>

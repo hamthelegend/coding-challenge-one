@@ -32,7 +32,7 @@ class AddFoodDialog : DialogFragment(), OnItemSelectedListener {
     private var foodTypeList = arrayListOf<FoodTypeRealm>()
     private var foodTypeListSpinner = arrayListOf<String>()
     private lateinit var selectedType: String
-    private lateinit var database: RealmDatabase
+    private val database: RealmDatabase = RealmDatabase()
 
     interface AddFoodData{
         fun addData(name: String, shortDesc: String, type: ObjectId)
@@ -91,7 +91,11 @@ class AddFoodDialog : DialogFragment(), OnItemSelectedListener {
                     edtShortDesc.error = "Short description required"
                     return@setOnClickListener
                 }
-
+                addFoodDataCallback.addData(
+                    name = edtFoodName.text.toString(),
+                    shortDesc = edtShortDesc.text.toString(),
+                    type = ObjectId(selectedType),
+                )
                 dialog?.dismiss()
             }
         }

@@ -1,68 +1,64 @@
 package ph.edu.auf.codingchallengeone.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hamthelegend.enchantmentorder.extensions.combineToStateFlow
+import com.hamthelegend.enchantmentorder.extensions.mapToStateFlow
+import com.hamthelegend.enchantmentorder.extensions.search
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.invoke
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.mongodb.kbson.ObjectId
 import ph.edu.auf.codingchallengeone.realm.operations.RealmDatabase
-import ph.edu.auf.codingchallengeone.realm.realmmodels.FoodRealm
 
 class FoodViewModel : ViewModel() {
 
-    private var _foodList = MutableLiveData<ArrayList<FoodRealm>>()
-    private var _isLoading = MutableLiveData(false)
-
     private val database: RealmDatabase = RealmDatabase()
 
-    val foodList : LiveData<ArrayList<FoodRealm>> get() = _foodList
-    val isLoading: LiveData<Boolean> get() = _isLoading
+    private val _searchString = MutableStateFlow("")
+    val searchString = _searchString.asStateFlow()
 
-    init {
-        getFoodList()
+    val foodList = combineToStateFlow(
+        database.getAllFood(),
+        searchString,
+        scope = viewModelScope,
+        initialValue = null,
+    ) { foodList, searchString ->
+        foodList.search(searchString) { it.foodName }
     }
 
-    fun getFoodList(){
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = database.getAllFood()
-            withContext(Dispatchers.Main.immediate){
-                _foodList.value = ArrayList(result)
-            }
-        }
-    }
+    val isLoading = foodList.mapToStateFlow(scope = viewModelScope) { it != null }
 
     fun addFood(name: String, shortDesc: String, type: ObjectId){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             database.addNewFood(name,shortDesc,type)
-            getFoodList()
         }
     }
 
     fun addFoodToFave(id: ObjectId){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             database.addToFaveFood(id)
-            getFoodList()
+        }
+    }
+
+    fun removeFoodFromFave(id: ObjectId){
+        viewModelScope.launch {
+            database.removeFromFave(id)
         }
     }
 
     fun searchFood(searchString: String){
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = database.searchFood(searchString)
-            withContext(Dispatchers.Main.immediate){
-            }
-        }
+        _searchString.update { searchString }
     }
 
     fun deleteFood(id: ObjectId){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             database.removeFood(id)
-            getFoodList()
         }
     }
-
-
 }

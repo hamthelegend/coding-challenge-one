@@ -8,12 +8,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
 import ph.edu.auf.codingchallengeone.R
 import ph.edu.auf.codingchallengeone.adapters.FoodAdapter
@@ -24,9 +28,9 @@ import ph.edu.auf.codingchallengeone.viewmodels.FoodViewModel
 
 class FoodFragment : Fragment(), AddFoodDialog.AddFoodData, FoodAdapter.FoodAdapterCallback {
 
+    private val viewModel: FoodViewModel by viewModels()
     private lateinit var binding: FragmentFoodBinding
     private lateinit var adapter: FoodAdapter
-    private lateinit var viewModel: FoodViewModel
     private lateinit var foodList: ArrayList<FoodRealm>
     private var recoverMode : Boolean = false
 
@@ -55,33 +59,18 @@ class FoodFragment : Fragment(), AddFoodDialog.AddFoodData, FoodAdapter.FoodAdap
             addFoodDialog.show(requireActivity().supportFragmentManager,null)
         }
 
-        binding.btnSearch.setOnClickListener{
-            if(binding.edtSearch.text.toString().isEmpty()){
-                binding.edtSearch.error = "Required"
-                return@setOnClickListener
+
+        lifecycleScope.launch {
+            viewModel.foodList.collect {
+                foodList.clear()
+                foodList.addAll(it ?: emptyList())
+                adapter.notifyDataSetChanged()
             }
-
-            viewModel.searchFood(binding.edtSearch.text.toString())
-
         }
 
-        viewModel.foodList.observe(viewLifecycleOwner){
-            foodList.addAll(it)
-
+        binding.edtSearch.addTextChangedListener {
+            viewModel.searchFood(it.toString())
         }
-
-        binding.edtSearch.addTextChangedListener(object : TextWatcher{
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-
-        })
 
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT){
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -132,6 +121,10 @@ class FoodFragment : Fragment(), AddFoodDialog.AddFoodData, FoodAdapter.FoodAdap
 
     override fun addToFave(id: ObjectId) {
         viewModel.addFoodToFave(id)
+    }
+
+    override fun removeFromFave(id: ObjectId) {
+        viewModel.removeFoodFromFave(id)
     }
 
 }
