@@ -1,16 +1,12 @@
 package ph.edu.auf.codingchallengeone.views.fragments
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,7 +15,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
-import ph.edu.auf.codingchallengeone.R
 import ph.edu.auf.codingchallengeone.adapters.FoodAdapter
 import ph.edu.auf.codingchallengeone.databinding.FragmentFoodBinding
 import ph.edu.auf.codingchallengeone.dialogs.AddFoodDialog
@@ -109,7 +104,7 @@ class FoodFragment : Fragment(), AddFoodDialog.AddFoodData, FoodAdapter.FoodAdap
 
             }
 
-        })
+        }).attachToRecyclerView(binding.rvFood)
 
 
 
